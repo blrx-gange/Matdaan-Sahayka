@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores voter preferences and learning progress.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "language": { "type": "string" },
+        "points": { "type": "number" },
+        "knowledgeLevel": { "type": "string", "enum": ["Beginner", "Intermediate", "Advanced"] },
+        "onboarded": { "type": "boolean" },
+        "profileData": { "type": "object" },
+        "lastActive": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "language"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Individual messages in a chat thread.",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "model"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "pointsEarned": { "type": "number" }
+      }
+    },
+    "QuizHistory": {
+      "title": "Quiz Result",
+      "description": "Records of past quiz attempts.",
+      "type": "object",
+      "properties": {
+        "question": { "type": "string" },
+        "selected_option": { "type": "string" },
+        "correct_answer": { "type": "string" },
+        "is_correct": { "type": "boolean" },
+        "points_earned": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Root user profile document."
+    },
+    "users/{userId}/sessions/{sessionId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Messages within a specific chat session."
+    },
+    "users/{userId}/history/{attemptId}": {
+      "schema": "QuizHistory",
+      "description": "Quiz attempt subcollection."
+    },
+    "questions_bank/{questionId}": {
+      "schema": "QuizHistory",
+      "description": "Global bank of generated questions."
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Matdaan Mitra",
+  "description": "A high-performance electoral education assistant featuring AI-driven profiling, dynamic MCQ quizzes, and a fullscreen multilingual chat with voice support.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

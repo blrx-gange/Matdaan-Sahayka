@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&family=Outfit:wght@700;800;900&family=JetBrains+Mono:wght@500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-primary: #FF9933; /* Indian Saffron */
+  --color-secondary: #ffffff; /* Indian White */
+  --color-accent: #138808; /* Indian Green */
+  --color-navy: #000080; /* Ashoka Chakra Blue */
+}
+
+@layer utilities {
+  @keyframes bg-pan {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(150%) skewX(-20deg); }
+  }
+  .animate-bg-pan {
+    animation: bg-pan 3s ease infinite;
+  }
+}
+
+/* GSAP utility for initial state - removed default opacity to prevent blank pages if JS fails */
+.reveal-item {
+}
+
+body {
+  @apply bg-secondary text-slate-900 antialiased overflow-hidden h-screen w-screen font-sans;
+}
+
+h1, h2, h3, h4 {
+  @apply font-display tracking-tight text-slate-950;
+}
+
+#root {
+  @apply h-full w-full;
+}
+
+.native-scroller {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.native-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* Trophy animation styles */
+.markdown-body {
+  line-height: 1.6;
+  color: #334155;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: #0f172a;
+}
+
+.markdown-body p {
+  margin-bottom: 1rem;
+}
+
+.markdown-body ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-bottom: 1.25rem;
+}
+
+.markdown-body ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0.5rem;
+  color: #f97316;
+  font-weight: 900;
+}
+
+.markdown-body ol {
+  counter-reset: my-counter;
+  padding-left: 0;
+  list-style: none;
+  margin-bottom: 1.25rem;
+}
+
+.markdown-body ol li {
+  counter-increment: my-counter;
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-body ol li::before {
+  content: counter(my-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: #fef2f2;
+  color: #f97316;
+  font-size: 0.625rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid #ffedd5;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.5rem 0;
+  font-size: 0.8125rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.markdown-body th {
+  background: #f8fafc;
+  font-weight: 900;
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 2px solid #f1f5f9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.markdown-body td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.markdown-body strong {
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.view-transition {
+  opacity: 0;
+}
+
+.prose {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+.prose p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.25em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.prose li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+.prose h1, .prose h2, .prose h3 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+}
+.prose strong {
+  @apply font-black text-slate-900;
+}

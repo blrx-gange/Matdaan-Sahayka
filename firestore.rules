@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn(); // Relaxed for preview environment reliability, but still requires auth
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Validation Helpers ---
+    function isValidSession(data) {
+      return (data.get('title', '') is string)
+        && (data.get('lastMessage', '') is string)
+        && (data.get('updatedAt', request.time) is timestamp)
+        && (data.get('createdAt', request.time) is timestamp);
+    }
+    function isValidUser(data) {
+      return (data.get('uid', '') is string)
+        && (data.get('points', 0) is number)
+        && (data.get('language', 'English') is string)
+        && (data.get('knowledgeLevel', 'Beginner') in ['Beginner', 'Intermediate', 'Advanced', 'New'])
+        && (data.get('onboarded', false) is bool)
+        && (data.get('lastActive', '') is string)
+        && (data.get('createdAt', '') is string);
+    }
+
+    function isValidChatMessage(data) {
+      return data.text is string && data.text.size() <= 10000
+        && data.role in ['user', 'model']
+        && (data.get('pointsEarned', 0) is number)
+        && (data.get('timestamp', request.time) is timestamp);
+    }
+
+    function isValidQuizAttempt(data) {
+      return (data.get('question', '') is string && data.get('question', '').size() <= 1000)
+        && (data.get('selected_option', '') is string && data.get('selected_option', '').size() <= 1000)
+        && (data.get('correct_answer', '') is string && data.get('correct_answer', '').size() <= 1000)
+        && (data.get('is_correct', false) is bool)
+        && (data.get('points_earned', 0) is number)
+        && (data.get('timestamp', request.time) is timestamp || data.get('timestamp', '') is string);
+    }
+
+    // --- Match Rules ---
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      
+      allow create: if isOwner(userId) && isValidId(userId)
+        && isVerified()
+        && (incoming().get('uid', '') == userId)
+        && isValidUser(incoming());
+
+      allow update: if isOwner(userId) && isValidId(userId)
+        && isVerified()
+        && incoming().diff(existing()).affectedKeys().hasOnly(['points', 'knowledgeLevel', 'onboarded', 'profileData', 'lastActive', 'language', 'lastDailyLesson'])
+        && (incoming().get('points', 0) is number)
+        && (incoming().get('onboarded', true) is bool);
+
+      // Subcollections
+      match /sessions/{sessionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(sessionId) && isVerified() && isValidSession(incoming());
+        allow update: if isOwner(userId) && isValidId(sessionId) && isVerified() && isValidSession(incoming());
+        
+        match /messages/{messageId} {
+          allow read: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidId(sessionId) && isValidId(messageId)
+            && isVerified()
+            && isValidChatMessage(incoming());
+        }
+      }
+
+      match /history/{attemptId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(attemptId)
+          && isVerified()
+          && isValidQuizAttempt(incoming());
+      }
+    }
+
+    match /questions_bank/{questionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+    }
+  }
+}
